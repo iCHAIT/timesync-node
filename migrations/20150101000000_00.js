@@ -10,6 +10,7 @@ exports.up = function(knex) {
     table.increments('id').primary();
     table.string('name').notNullable();
     table.string('uri');
+    table.integer('default_activity').references('id').inTable('activities');
     table.integer('owner').references('id').inTable('users').notNullable();
   }).createTable('times', function(table) {
     table.increments('id').primary();

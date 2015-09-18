@@ -183,6 +183,7 @@ module.exports = function(app) {
         {name: 'uri', type: 'string', required: false},
         {name: 'owner', type: 'string', required: true},
         {name: 'slugs', type: 'array', required: true},
+        {name: 'default_activity', type: 'string', required: false},
       ];
 
       // validateFields takes the object to check fields on,
@@ -213,6 +214,23 @@ module.exports = function(app) {
         return res.status(err.status).send(err);
       }
 
+      // The project's default activity will be null by default.
+      default_activity = null;
+      if (obj.default_activity === undefined) {
+        // Check whether the default_activity is valid. If it is not, return a
+        // errorBadObjectUnknownField.
+        knex('activities').select('id').where(
+            {name: obj.default_activity}).then((activity_id) => {
+          if (activity_id == undefined) {
+            const err = errors.errorBadObjectInvalidField('project',
+              'default_activity', 'default_activity',
+              'The specified default activity doesn\'t exist.');
+            return res.status(err.status).send(err);
+          }
+          default_activity = activity_id;
+        });
+      }
+
       // check validity of owner -- it must match the submitting user
       // if checkUser fails, the user submitting the request doesn't match
       helpers.checkUser(user.username, obj.owner).then(function(userId) {
@@ -235,6 +253,7 @@ module.exports = function(app) {
             uri: obj.uri,
             owner: userId,
             name: obj.name,
+            default_activity: default_activity,
           };
 
           knex('projects').insert(insertion).then(function(projects) {

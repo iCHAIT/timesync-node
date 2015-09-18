@@ -207,7 +207,7 @@ module.exports = function(app) {
       const badField = helpers.validateFields(time, [
         {name: 'duration', type: 'number', required: true},
         {name: 'project', type: 'string', required: true},
-        {name: 'activities', type: 'array', required: true},
+        {name: 'activities', type: 'array', required: false},
         {name: 'user', type: 'string', required: true},
         {name: 'issue_uri', type: 'string', required: false},
         {name: 'date_worked', type: 'string', required: true},
@@ -222,6 +222,22 @@ module.exports = function(app) {
         const err = errors.errorBadObjectInvalidField('time',
         badField.name, badField.type, badField.actualType);
         return res.status(err.status).send(err);
+      }
+
+      // If the activities field is not specified, get the default activity
+      // for the project. However, if the default activity was undefined, go
+      /// ahead and return a errorBadObjectMissingField.
+      if (time.activities === undefined) {
+        knex('projects').select('default_activity').where(
+            {project: time.project}).first().then((default_activity) => {
+          if (default_activity === undefined) {
+            const err = errors.errorBadObjectMissingField('time',
+            'activities');
+            return res.status(err.status).send(err);
+          } else {
+            time.activities = default_activity;
+          }
+        });
       }
 
       // Test duration value
