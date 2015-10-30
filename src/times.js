@@ -30,15 +30,13 @@ module.exports = function(app) {
     }
 
     userQuery.then(function(userObj) {
-      let timesQ;
+      let timesQ = knex('times');
 
       // Query for soft-deleted times when include_deleted=true or if the param
       // is passed (and not set to anything)
-      if (req.query.include_deleted === 'true' ||
-          req.query.include_deleted === '') {
-        timesQ = knex('times');
-      } else {
-        timesQ = knex('times').where({deleted_at: null});
+      if (req.query.include_deleted !== 'true' ||
+          req.query.include_deleted !== '') {
+        timesQ = timesQ.where({deleted_at: null});
       }
 
       if (usersList !== undefined) {
