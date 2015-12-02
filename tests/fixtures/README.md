@@ -15,10 +15,12 @@ projects.
   - Project manager for: Ganeti Web Manager
   - Member of: GWM
   - Spectator of: GWM
+  - Member of: Timesync
 
 3) patcht's password is ``drowssap``
   - Member of: PGD
   - Spectator of: PGD
+  - Manager of: Timesync
 
 4) mrsj's password is ``word``
   - Spectator of: GWM

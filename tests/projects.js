@@ -45,6 +45,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://code.osuosl.org/projects/ganeti-webmgr',
               name: 'Ganeti Web Manager',
               slugs: ['ganeti-webmgr', 'gwm'],
+              default_activity: null,
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -55,6 +56,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://code.osuosl.org/projects/pgd',
               name: 'Protein Geometry Database',
               slugs: ['pgd'],
+              default_activity: null,
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -65,6 +67,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://github.com/osu-cass/whats-fresh-api',
               name: 'Whats Fresh',
               slugs: ['wf'],
+              default_activity: null,
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -75,6 +78,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://github.com/osuosl/timesync',
               name: 'Timesync',
               slugs: ['timesync', 'ts'],
+              default_activity: 'dev',
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -110,6 +114,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://code.osuosl.org/projects/ganeti-webmgr',
               name: 'Ganeti Web Manager',
               slugs: ['ganeti-webmgr', 'gwm'],
+              default_activity: null,
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -120,6 +125,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://code.osuosl.org/projects/pgd',
               name: 'Protein Geometry Database',
               slugs: ['pgd'],
+              default_activity: null,
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -130,6 +136,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://github.com/osu-cass/whats-fresh-api',
               name: 'Whats Fresh',
               slugs: ['wf'],
+              default_activity: null,
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -140,6 +147,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://github.com/osuosl/timesync',
               name: 'Timesync',
               slugs: ['timesync', 'ts'],
+              default_activity: 'dev',
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -150,6 +158,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://github.com/osuosl/chiliproject',
               name: 'Chili Project',
               slugs: [],
+              default_activity: null,
               deleted_at: '2014-01-01',
               updated_at: null,
               created_at: '2009-07-07',
@@ -183,6 +192,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://code.osuosl.org/projects/ganeti-webmgr',
               name: 'Ganeti Web Manager',
               slugs: ['ganeti-webmgr', 'gwm'],
+              default_activity: null,
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -193,6 +203,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://code.osuosl.org/projects/pgd',
               name: 'Protein Geometry Database',
               slugs: ['pgd'],
+              default_activity: null,
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -203,6 +214,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://github.com/osu-cass/whats-fresh-api',
               name: 'Whats Fresh',
               slugs: ['wf'],
+              default_activity: null,
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -213,6 +225,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://github.com/osuosl/timesync',
               name: 'Timesync',
               slugs: ['timesync', 'ts'],
+              default_activity: 'dev',
               deleted_at: null,
               updated_at: null,
               created_at: '2014-01-01',
@@ -223,6 +236,7 @@ module.exports = function(expect, request, baseUrl) {
               uri: 'https://github.com/osuosl/chiliproject',
               name: 'Chili Project',
               slugs: [],
+              default_activity: null,
               deleted_at: '2014-01-01',
               updated_at: null,
               created_at: '2009-07-07',
@@ -273,6 +287,7 @@ module.exports = function(expect, request, baseUrl) {
             uri: 'https://code.osuosl.org/projects/ganeti-webmgr',
             name: 'Ganeti Web Manager',
             slugs: ['ganeti-webmgr', 'gwm'],
+            default_activity: null,
             deleted_at: null,
             updated_at: null,
             created_at: '2014-01-01',
@@ -337,11 +352,13 @@ module.exports = function(expect, request, baseUrl) {
       name: 'Ganeti Web Mgr',
       slugs: ['gan-web', 'gwm'],
       uri: 'https://code.osuosl.org/projects/',
+      default_activity: 'docs',
     };
 
     const originalProject = {
       name: 'Ganeti Web Manager',
       slugs: ['ganeti-webmgr', 'gwm'],
+      default_activity: null,
       deleted_at: null,
       updated_at: null,
       created_at: '2014-01-01',
@@ -353,17 +370,21 @@ module.exports = function(expect, request, baseUrl) {
     const patchedProjectName = {name: patchedProject.name};
     const patchedProjectUri = {uri: patchedProject.uri};
     const patchedProjectSlugs = {slugs: patchedProject.slugs};
+    const patchedProjectActivity =
+      {default_activity: patchedProject.default_activity};
 
     const badProject = {
       name: ['a name'],
       uri: ['a website'],
       slugs: 'a slug',
+      default_activity: [100],
       key: 'value',
     };
 
     const badProjectName = {name: badProject.name};
     const badProjectUri = {uri: badProject.uri};
     const badProjectSlugs = {slugs: badProject.slugs};
+    const badProjectActivity = {default_activity: badProject.default_activity};
     const badProjectKey = {key: 'value' };
 
     const postArg = {
@@ -393,7 +414,8 @@ module.exports = function(expect, request, baseUrl) {
       });
     };
 
-    it("successfully patches a project's uri, slugs, and name",
+    it("successfully patches a project's uri, slugs, name, and default " +
+    'activity',
     function(done) {
       getAPIToken().then(function(token) {
         requestOptions.body = copyJsonObject(postArg);
@@ -410,6 +432,7 @@ module.exports = function(expect, request, baseUrl) {
           expectedResults.name = patchedProject.name;
           expectedResults.uri = patchedProject.uri;
           expectedResults.slugs = patchedProject.slugs;
+          expectedResults.default_activity = patchedProject.default_activity;
           expectedResults.uuid = originalProject.uuid;
           expectedResults.revision = 2;
           expectedResults.updated_at = new Date().toISOString()
@@ -513,6 +536,36 @@ module.exports = function(expect, request, baseUrl) {
       });
     });
 
+    it("successfully patches a project's default activity", function(done) {
+      getAPIToken().then(function(token) {
+        requestOptions.body = copyJsonObject(postArg);
+        requestOptions.body.object = copyJsonObject(patchedProjectActivity);
+
+        requestOptions.body.auth.token = token;
+
+        request.post(requestOptions, function(err, res, body) {
+          expect(err).to.be.a('null');
+          expect(res.statusCode).to.equal(200);
+
+          const expectedResults = copyJsonObject(originalProject);
+          expectedResults.default_activity = patchedProject.default_activity;
+          expectedResults.uuid = originalProject.uuid;
+          expectedResults.revision = 2;
+          expectedResults.id = 6;
+          expectedResults.updated_at = new Date().toISOString()
+                                                 .substring(0, 10);
+
+          const expectedPost = copyJsonObject(expectedResults);
+          delete expectedPost.deleted_at;
+
+          // expect body of post request to be the new state of gwm
+          expect(body).to.deep.equal(expectedPost);
+
+          checkListEndpoint(done, expectedResults, token);
+        });
+      });
+    });
+
     it("doesn't patch a project with bad authentication", function(done) {
       getAPIToken().then(function(token) {
         requestOptions.body = copyJsonObject(postArg);
@@ -560,7 +613,8 @@ module.exports = function(expect, request, baseUrl) {
       });
     });
 
-    it("doesn't patch a project with bad uri, name, and slugs",
+    it("doesn't patch a project with bad uri, name, slugs, and default " +
+    'activity',
     function(done) {
       getAPIToken().then(function(token) {
         requestOptions.body = copyJsonObject(postArg);
@@ -579,6 +633,8 @@ module.exports = function(expect, request, baseUrl) {
             'array',
             'Field slugs of project should be array but was sent as ' +
             'string',
+            'Field default_activity of project should be string but was sent' +
+            ' as number',
             'project does not have a key field',
           ]).to.include.members([body.text]);
 
@@ -638,6 +694,26 @@ module.exports = function(expect, request, baseUrl) {
           expect(res.statusCode).to.equal(400);
           expect(body.text).to.equal('Field name of' +
           ' project should be string but was sent as array');
+
+          const expectedResults = copyJsonObject(originalProject);
+          checkListEndpoint(done, expectedResults, token);
+        });
+      });
+    });
+
+    it("doesn't patch a project with just bad default activity",
+    function(done) {
+      getAPIToken().then(function(token) {
+        requestOptions.body = copyJsonObject(postArg);
+        requestOptions.body.object = copyJsonObject(badProjectActivity);
+
+        requestOptions.body.auth.token = token;
+
+        request.post(requestOptions, function(err, res, body) {
+          expect(body.error).to.equal('Bad object');
+          expect(res.statusCode).to.equal(400);
+          expect(body.text).to.equal('Field default_activity of project ' +
+          'should be string but was sent as array');
 
           const expectedResults = copyJsonObject(originalProject);
           checkListEndpoint(done, expectedResults, token);
@@ -815,6 +891,61 @@ module.exports = function(expect, request, baseUrl) {
       });
     });
 
+    it("doesn't patch a project with non-existent default activity",
+    function(done) {
+      getAPIToken().then(function(token) {
+        requestOptions.body = copyJsonObject(postArg);
+        requestOptions.body.object = copyJsonObject(originalProject);
+        delete requestOptions.body.object.id;
+        delete requestOptions.body.object.uuid;
+        delete requestOptions.body.object.revision;
+        delete requestOptions.body.object.deleted_at;
+        delete requestOptions.body.object.updated_at;
+        delete requestOptions.body.object.created_at;
+        requestOptions.body.object.default_activity = 'not_an_activity';
+
+        requestOptions.body.auth.token = token;
+
+        request.post(requestOptions, function(err, res, body) {
+          expect(body.error).to.equal('Invalid foreign key');
+          expect(res.statusCode).to.equal(409);
+          expect(body.text).to.equal('The project does not contain a valid ' +
+          'activity reference.');
+
+          const expectedResults = copyJsonObject(originalProject);
+          checkListEndpoint(done, expectedResults, token);
+        });
+      });
+    });
+
+    it("doesn't patch a project with wrong-type default activity",
+    function(done) {
+      getAPIToken().then(function(token) {
+        requestOptions.body = copyJsonObject(postArg);
+        requestOptions.body.object = copyJsonObject(originalProject);
+        delete requestOptions.body.object.id;
+        delete requestOptions.body.object.uuid;
+        delete requestOptions.body.object.revision;
+        delete requestOptions.body.object.deleted_at;
+        delete requestOptions.body.object.updated_at;
+        delete requestOptions.body.object.created_at;
+        requestOptions.body.object.default_activity =
+                                                    badProject.default_activity;
+
+        requestOptions.body.auth.token = token;
+
+        request.post(requestOptions, function(err, res, body) {
+          expect(body.error).to.equal('Bad object');
+          expect(res.statusCode).to.equal(400);
+          expect(body.text).to.equal('Field default_activity of' +
+          ' project should be string but was sent as array');
+
+          const expectedResults = copyJsonObject(originalProject);
+          checkListEndpoint(done, expectedResults, token);
+        });
+      });
+    });
+
     it("doesn't patch a project with invalid key", function(done) {
       getAPIToken().then(function(token) {
         requestOptions.body = copyJsonObject(postArg);
@@ -847,6 +978,7 @@ module.exports = function(expect, request, baseUrl) {
       uri: 'https://github.com/osuosl/timesync-node',
       slugs: ['timesync-node', 'tsn'],
       name: 'TimeSync Node',
+      default_activity: 'meeting',
     };
 
     // the project as added to the database
@@ -854,6 +986,7 @@ module.exports = function(expect, request, baseUrl) {
       uri: 'https://github.com/osuosl/timesync-node',
       slugs: ['timesync-node', 'tsn'],
       name: 'TimeSync Node',
+      default_activity: 'meeting',
       revision: 1,
       created_at: new Date().toISOString().substring(0, 10),
     };
@@ -872,6 +1005,7 @@ module.exports = function(expect, request, baseUrl) {
         'ganeti-webmgr',
         name: 'Ganeti Web Manager',
         slugs: ['ganeti-webmgr', 'gwm'],
+        default_activity: null,
         deleted_at: null,
         updated_at: null,
         created_at: '2014-01-01',
@@ -882,6 +1016,7 @@ module.exports = function(expect, request, baseUrl) {
         uri: 'https://code.osuosl.org/projects/pgd',
         name: 'Protein Geometry Database',
         slugs: ['pgd'],
+        default_activity: null,
         deleted_at: null,
         updated_at: null,
         created_at: '2014-01-01',
@@ -892,6 +1027,7 @@ module.exports = function(expect, request, baseUrl) {
         uri: 'https://github.com/osu-cass/whats-fresh-api',
         name: 'Whats Fresh',
         slugs: ['wf'],
+        default_activity: null,
         deleted_at: null,
         updated_at: null,
         created_at: '2014-01-01',
@@ -902,6 +1038,7 @@ module.exports = function(expect, request, baseUrl) {
         uri: 'https://github.com/osuosl/timesync',
         name: 'Timesync',
         slugs: ['timesync', 'ts'],
+        default_activity: 'dev',
         deleted_at: null,
         updated_at: null,
         created_at: '2014-01-01',
@@ -951,6 +1088,7 @@ module.exports = function(expect, request, baseUrl) {
                 uri: 'https://github.com/osuosl/timesync-node',
                 slugs: ['timesync-node', 'tsn'],
                 name: 'TimeSync Node',
+                default_activity: 'meeting',
                 deleted_at: null,
                 updated_at: null,
                 created_at: new Date().toISOString().substring(0, 10),
@@ -999,11 +1137,64 @@ module.exports = function(expect, request, baseUrl) {
                 uri: null,
                 slugs: ['timesync-node', 'tsn'],
                 name: 'TimeSync Node',
+                default_activity: 'meeting',
                 deleted_at: null,
                 updated_at: null,
                 created_at: new Date().toISOString().substring(0, 10),
                 revision: 1,
                 uuid: addedProject.uuid,
+              },
+            ]);
+
+            expect(getErr).to.be.a('null');
+            expect(getRes.statusCode).to.equal(200);
+
+            const jsonBody = JSON.parse(getBody);
+            expect(jsonBody).to.deep.have.same.members(expectedGetResults);
+            done();
+          });
+        });
+      });
+    });
+
+    it('successfully creates a new project with no default activity',
+    function(done) {
+      getAPIToken().then(function(token) {
+        // remove uri from post data
+        const postNoActivity = copyJsonObject(postArg);
+        postNoActivity.object.default_activity = undefined;
+        requestOptions.body = postNoActivity;
+
+        requestOptions.body.auth.token = token;
+
+        // remove uri from test object
+        const newProjectNoActivity = copyJsonObject(newProject);
+        delete newProjectNoActivity.default_activity;
+
+        request.post(requestOptions, function(err, res, body) {
+          expect(err).to.be.a('null');
+          expect(res.statusCode).to.equal(200);
+
+          const addedProject = copyJsonObject(newProjectNoActivity);
+          addedProject.uuid = body.uuid;
+          expect(body).to.deep.equal(addedProject);
+
+          request.get(baseUrl + 'projects?token=' + token,
+          function(getErr, getRes, getBody) {
+            // the projects/ endpoint should now have one more project
+            const expectedGetResults = initialProjects.concat([
+              {
+                owner: 'tschuy',
+                uri: 'https://github.com/osuosl/timesync-node',
+                slugs: ['tsn', 'timesync-node'],
+                name: 'TimeSync Node',
+                default_activity: null,
+                deleted_at: null,
+                updated_at: null,
+                created_at: new Date().toISOString().substring(0, 10),
+                revision: 1,
+                uuid: addedProject.uuid,
+                id: 6,
               },
             ]);
 
@@ -1246,6 +1437,51 @@ module.exports = function(expect, request, baseUrl) {
           expect(res.statusCode).to.equal(400);
           expect(body.text).to.equal('Field name of' +
           ' project should be string but was sent as array');
+
+          checkListEndpoint(done, token);
+        });
+      });
+    });
+
+    it('fails to create a new project with non-existent default activity',
+    function(done) {
+      getAPIToken().then(function(token) {
+        const postBadActivity = copyJsonObject(postArg);
+        postBadActivity.object.default_activity = 'not_an_activity';
+        requestOptions.body = postBadActivity;
+
+        request.post(requestOptions, function(err, res, body) {
+          const expectedError = {
+            status: 409,
+            error: 'Invalid foreign key',
+            text: 'The project does not contain a valid activity reference.',
+          };
+
+          expect(body).to.deep.equal(expectedError);
+          expect(res.statusCode).to.equal(409);
+
+          checkListEndpoint(done, token);
+        });
+      });
+    });
+
+    it('fails to create a new project with bad default activity datatype',
+    function(done) {
+      getAPIToken().then(function(token) {
+        const postBadActivity = copyJsonObject(postArg);
+        postBadActivity.object.default_activity = [105];
+        requestOptions.body = postBadActivity;
+
+        request.post(requestOptions, function(err, res, body) {
+          const expectedError = {
+            status: 400,
+            error: 'Bad Object',
+            text: 'Field default_activity of project should be string but ' +
+                  'was sent as array',
+          };
+
+          expect(body).to.deep.equal(expectedError);
+          expect(res.statusCode).to.equal(400);
 
           checkListEndpoint(done, token);
         });
@@ -1576,6 +1812,7 @@ module.exports = function(expect, request, baseUrl) {
       'uri': 'https://code.osuosl.org/projects/ganeti-webmgr',
       'name': 'GANETI WEB MANAGER',
       'uuid': 'c285963e-192b-4e99-9d92-a940519f1fbd',
+      'default_activity': null,
       'revision': 2,
       'deleted_at': null,
       'updated_at': currentTime,
@@ -1587,6 +1824,7 @@ module.exports = function(expect, request, baseUrl) {
       'uri': 'https://code.osuosl.org/projects/ganeti-webmgr',
       'name': 'GANETI WEB MANAGER',
       'uuid': 'c285963e-192b-4e99-9d92-a940519f1fbd',
+      'default_activity': null,
       'revision': 2,
       'deleted_at': null,
       'updated_at': currentTime,
@@ -1597,6 +1835,7 @@ module.exports = function(expect, request, baseUrl) {
           'uri': 'https://code.osuosl.org/projects/ganeti-webmgr',
           'name': 'Ganeti Web Manager',
           'uuid': 'c285963e-192b-4e99-9d92-a940519f1fbd',
+          'default_activity': null,
           'revision': 1,
           'deleted_at': null,
           'updated_at': null,

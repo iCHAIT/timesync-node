@@ -57,6 +57,7 @@ module.exports = function(app) {
       'projects.uri as uri',
       'projects.name as name',
       'projects.uuid as uuid',
+      'activities.slug as default_activity',
       'projects.revision as revision',
       'projects.deleted_at as deleted_at',
       'projects.updated_at as updated_at',
@@ -66,7 +67,8 @@ module.exports = function(app) {
     .orderBy('revision')
     // Do a left join so we keep projects without a slug field
     // https://en.wikipedia.org/wiki/Join_(SQL)#Left_outer_join for more info.
-    .leftOuterJoin('projectslugs', 'projects.id', 'projectslugs.project');
+    .leftOuterJoin('projectslugs', 'projects.id', 'projectslugs.project')
+    .leftOuterJoin('activities', 'projects.default_activity', 'activities.id');
     // Yes this code is duplicated in both GET endpoints. If you have strong
     // feelings about this, change it. kthnkxby
 
@@ -166,6 +168,7 @@ module.exports = function(app) {
       'projects.uri as uri',
       'projects.name as name',
       'projects.uuid as uuid',
+      'activities.slug as default_activity',
       'projects.revision as revision',
       'projects.deleted_at as deleted_at',
       'projects.updated_at as updated_at',
@@ -176,6 +179,7 @@ module.exports = function(app) {
     // Do a left join so we keep projects without a slug field
     // https://en.wikipedia.org/wiki/Join_(SQL)#Left_outer_join for more info.
     .leftOuterJoin('projectslugs', 'projects.id', 'projectslugs.project')
+    .leftOuterJoin('activities', 'projects.default_activity', 'activities.id')
     // Matching on the uuid subquery (comments above)
     .where({'uuid': uuidSubquery});
 
@@ -235,7 +239,7 @@ module.exports = function(app) {
 
     // run various checks
     // valid keys
-    const validKeys = ['name', 'uri', 'slugs'];
+    const validKeys = ['name', 'uri', 'slugs', 'default_activity'];
     /* eslint-disable prefer-const */
     for (let key in obj) {
       /* eslint-enable prefer-const */
@@ -247,32 +251,27 @@ module.exports = function(app) {
       }
     }
 
-    // check existence of slugs
-    if (!obj.slugs) {
-      const err = errors.errorBadObjectMissingField('project', 'slug');
-      return res.status(err.status).send(err);
-    }
-
-    // check existence of name
-    if (!obj.name) {
-      const err = errors.errorBadObjectMissingField('project', 'name');
-      return res.status(err.status).send(err);
-    }
-
     // check field types
     const fields = [
       {name: 'name', type: 'string', required: true},
       {name: 'uri', type: 'string', required: false},
       {name: 'slugs', type: 'array', required: true},
+      {name: 'default_activity', type: 'string', required: false},
     ];
 
     // validateFields takes the object to check fields on,
     // and an array of field names and types
     const validationFailure = helpers.validateFields(obj, fields);
     if (validationFailure) {
-      const err = errors.errorBadObjectInvalidField('project',
-        validationFailure.name, validationFailure.type,
-        validationFailure.actualType);
+      let err;
+      if (validationFailure.missing) {
+        err = errors.errorBadObjectMissingField('project',
+          validationFailure.name);
+      } else {
+        err = errors.errorBadObjectInvalidField('project',
+          validationFailure.name, validationFailure.type,
+          validationFailure.actualType);
+      }
       return res.status(err.status).send(err);
     }
 
@@ -385,7 +384,7 @@ module.exports = function(app) {
     const obj = req.body.object;
 
     // valid keys
-    const validKeys = ['name', 'uri', 'slugs'];
+    const validKeys = ['name', 'uri', 'slugs', 'default_activity'];
     /* eslint-disable prefer-const */
     for (let key in obj) {
       /* eslint-enable prefer-const */
@@ -402,6 +401,7 @@ module.exports = function(app) {
       {name: 'name', type: 'string', required: false},
       {name: 'uri', type: 'string', required: false},
       {name: 'slugs', type: 'array', required: false},
+      {name: 'default_activity', type: 'string', required: false},
     ];
 
     // validateFields takes the object to check fields on,
@@ -449,11 +449,16 @@ module.exports = function(app) {
     knex('projects').first().select('projects.id as id',
     'projects.name as name', 'projects.uri as uri',
     'projects.uuid as uuid', 'projects.revision as revision',
+    'activities.slug as default_activity_name',
     'projects.created_at as created_at')
     .where('projects.id', '=', projectIdQuery)
+    .leftJoin('activities', 'activities.id', 'projects.default_activity')
     .then(function(project) {
       // project contains all of the information about the project the
       // user is updating
+
+      const defaultActivityName = project.default_activity_name;
+      delete project.default_activity_name;
 
       // access userroles, check if user is participating in project
       knex('userroles').where({user: authUser.id, project: project.id})
@@ -464,104 +469,115 @@ module.exports = function(app) {
           return res.status(err.status).send(err);
         }
 
-        knex('projectslugs').where('name', 'in', obj.slugs)
-        .then(function(slugs) {
-          // slugs contains all of the slugs named by the user that
-          // currently exist in the database. This list is used to
-          // check that they're not overlapping with existing slugs.
+        const update = function(activityId) {
+          knex('projectslugs').where('name', 'in', obj.slugs)
+          .then(function(slugs) {
+            // slugs contains all of the slugs named by the user that
+            // currently exist in the database. This list is used to
+            // check that they're not overlapping with existing slugs.
 
-          // final check: do any of the slugs POSTed to this
-          // endpoint already belong to some other project?
+            // final check: do any of the slugs POSTed to this
+            // endpoint already belong to some other project?
 
-          let overlappingSlugs = slugs.filter(function(slug) {
-            return slug.project !== project.id;
-          });
-
-          if (overlappingSlugs.length) {
-            overlappingSlugs = overlappingSlugs.map(function(slug) {
-              return slug.name;
+            let overlappingSlugs = slugs.filter(function(slug) {
+              return slug.project !== project.id;
             });
 
-            const err = errors.errorSlugsAlreadyExist(overlappingSlugs);
-            return res.status(err.status).send(err);
-          }
-          // all checks have passed
+            if (overlappingSlugs.length) {
+              overlappingSlugs = overlappingSlugs.map(function(slug) {
+                return slug.name;
+              });
 
-          // modify the project object gotten from the database
-          // and then reinsert it into the database
+              const err = errors.errorSlugsAlreadyExist(overlappingSlugs);
+              return res.status(err.status).send(err);
+            }
+            // all checks have passed
 
-          // when using knex.update() I have better luck updating
-          // the entire object, even fields that aren't changed
-          project.uri = obj.uri || project.uri;
-          project.name = obj.name || project.name;
-          project.revision += 1;
-          project.created_at = parseInt(project.created_at, 10);
-          project.updated_at = Date.now();
-          project.newest = true;
+            // modify the project object gotten from the database
+            // and then reinsert it into the database
 
-          const oldId = project.id;
-          delete project.id;
+            // when using knex.update() I have better luck updating
+            // the entire object, even fields that aren't changed
+            project.uri = obj.uri || project.uri;
+            project.name = obj.name || project.name;
+            project.default_activity =
+              helpers.getType(activityId) === 'array' ?
+              activityId[0] :
+              activityId;
+            project.revision += 1;
+            project.created_at = parseInt(project.created_at, 10);
+            project.updated_at = Date.now();
+            project.newest = true;
 
-          // trx can be used just like knex, but every call is temporary
-          // until trx.commit() is called. Until then, they're stored
-          // separately, and, if something goes wrong, can be rolled
-          // back without side effects.
-          knex.transaction(function(trx) {
-            trx('projects').update({newest: false}).where({id: oldId})
-            .then(function() {
-              trx('projects').insert(project).returning('id')
-              .then(function(id) {
-                const projID = id[0];
+            const oldId = project.id;
+            delete project.id;
 
-                project.created_at = new Date(project.created_at)
-                .toISOString().substring(0, 10);
-                project.updated_at = new Date(project.updated_at)
-                .toISOString().substring(0, 10);
+            // trx can be used just like knex, but every call is temporary
+            // until trx.commit() is called. Until then, they're stored
+            // separately, and, if something goes wrong, can be rolled
+            // back without side effects.
+            knex.transaction(function(trx) {
+              trx('projects').update({newest: false}).where({id: oldId})
+              .then(function() {
+                trx('projects').insert(project).returning('id')
+                .then(function(id) {
+                  const projID = id[0];
 
-                trx('userroles').where({project: oldId})
-                .update({project: projID}).then(function() {
-                  trx('projectslugs').where({project: oldId})
-                  .then(function(existingSlugObjs) {
-                    const existingSlugs = existingSlugObjs.map(function(slug) {
-                      return slug.name;
-                    });
+                  project.created_at = new Date(project.created_at)
+                  .toISOString().substring(0, 10);
+                  project.updated_at = new Date(project.updated_at)
+                  .toISOString().substring(0, 10);
+                  project.default_activity = obj.default_activity ||
+                                                    defaultActivityName;
 
-                    if (helpers.getType(obj.slugs) === 'array') {
-                      const newSlugs = [];
+                  trx('userroles').where({project: oldId})
+                  .update({project: projID}).then(function() {
+                    trx('projectslugs').where({project: oldId})
+                    .then(function(existingSlugObj) {
+                      const existingSlugs = existingSlugObj.map(function(slug) {
+                        return slug.name;
+                      });
 
-                      newSlugs.push(trx('projectslugs').del()
-                      .where({project: oldId}));
+                      if (helpers.getType(obj.slugs) === 'array') {
+                        const newSlugs = [];
 
-                      /* eslint-disable */
-                      for (let slug of obj.slugs) {
-                      /* eslint-enable */
-                        newSlugs.push(trx('projectslugs')
-                        .insert({project: projID, name: slug}));
+                        newSlugs.push(trx('projectslugs').del()
+                        .where({project: oldId}));
+
+                        /* eslint-disable */
+                        for (let slug of obj.slugs) {
+                        /* eslint-enable */
+                          newSlugs.push(trx('projectslugs')
+                          .insert({project: projID, name: slug}));
+                        }
+
+                        Promise.all(newSlugs).then(function() {
+                          project.slugs = obj.slugs.sort();
+                          delete project.newest;
+                          trx.commit();
+                          res.send(JSON.stringify(project));
+                        }).catch(function(error) {
+                          log.error(req, 'Error inserting slugs: ' + error);
+                          trx.rollback();
+                        });
+                      } else {
+                        trx('projectslugs').update({project: projID})
+                        .where({project: oldId}).then(function() {
+                          project.slugs = existingSlugs.sort();
+                          delete project.newest;
+                          trx.commit();
+                          res.send(project);
+                        }).catch(function(error) {
+                          log.error(req, 'Error updating slugs: ' + error);
+                          trx.rollback();
+                        });
                       }
-
-                      Promise.all(newSlugs).then(function() {
-                        project.slugs = obj.slugs.sort();
-                        delete project.newest;
-                        trx.commit();
-                        res.send(JSON.stringify(project));
-                      }).catch(function(error) {
-                        log.error(req, 'Error inserting slugs: ' + error);
-                        trx.rollback();
-                      });
-                    } else {
-                      trx('projectslugs').update({project: projID})
-                      .where({project: oldId}).then(function() {
-                        project.slugs = existingSlugs.sort();
-                        delete project.newest;
-                        trx.commit();
-                        res.send(project);
-                      }).catch(function(error) {
-                        log.error(req, 'Error inserting slugs: ' + error);
-                        trx.rollback();
-                      });
-                    }
-                  }).catch(function(error) {
-                    log.error(req, 'Error retrieving existing slugs: ' + error);
+                    }).catch(function(error) {
+                      log.error(req, 'Error retrieving existing slugs: ' +
+                                                                        error);
+                      trx.rollback();
+                    });
+                  }).catch(function() {
                     trx.rollback();
                   });
                 }).catch(function(error) {
@@ -573,19 +589,24 @@ module.exports = function(app) {
                 trx.rollback();
               });
             }).catch(function(error) {
-              log.error(req, 'Error deprecating old project: ' + error);
-              trx.rollback();
+              log.error(req, 'Rolling back transaction.');
+              const err = errors.errorServerError(error);
+              return res.status(err.status).send(err);
             });
-          }).catch(function(error) {
-            log.error(req, 'Rolling back transaction.');
-            const err = errors.errorServerError(error);
+          });
+        };
+
+        if (obj.default_activity) {
+          helpers.checkActivities([obj.default_activity]).then(update)
+          .catch(function() {
+            const err = errors.errorInvalidForeignKey('project', 'activity');
             return res.status(err.status).send(err);
           });
-        }).catch(function(error) {
-          log.error(req, 'Error requesting project slugs for update: ' + error);
-          const err = errors.errorServerError(error);
-          return res.status(err.status).send(err);
-        });
+        } else if (obj.default_activity === null) {
+          update(null);
+        } else {
+          update(project.default_activity);
+        }
       }).catch(function(error) {
         log.error(req, 'Error requesting user roles for update: ' + error);
         const err = errors.errorServerError(error);
