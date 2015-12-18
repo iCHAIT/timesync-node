@@ -84,7 +84,7 @@ module.exports = function(expect, request, baseUrl) {
           {
             uri: 'https://code.osuosl.org/projects/ganeti-webmgr',
             name: 'Ganeti Web Manager',
-            slugs: ['gwm', 'ganeti-webmgr'],
+            slugs: ['ganeti-webmgr', 'gwm'],
             owner: 'tschuy',
             deleted_at: null,
             updated_at: null,
@@ -160,7 +160,7 @@ module.exports = function(expect, request, baseUrl) {
           {
             uri: 'https://code.osuosl.org/projects/ganeti-webmgr',
             name: 'Ganeti Web Manager',
-            slugs: ['gwm', 'ganeti-webmgr'],
+            slugs: ['ganeti-webmgr', 'gwm'],
             owner: 'tschuy',
             deleted_at: null,
             updated_at: null,

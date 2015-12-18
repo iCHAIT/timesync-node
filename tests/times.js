@@ -2364,7 +2364,7 @@ module.exports = function(expect, request, baseUrl) {
         const expectedResult = {
           duration: 12,
           user: 'tschuy',
-          project: ['gwm', 'ganeti-webmgr'],
+          project: ['ganeti-webmgr', 'gwm'],
           activities: ['docs'],
           notes: '',
           issue_uri: 'https://github.com/osuosl/ganeti_webmgr/issues/48',

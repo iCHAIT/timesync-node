@@ -113,7 +113,7 @@ module.exports = function(app) {
         }
         return res.send(projects.map(function(proj) {
           const slugs = projects.filter(function(p) {
-            return p.uuid === proj.uuid;
+            return p.uuid === proj.uuid && p.slug;
           }).map(function(p) {
             return p.slug;
           });
@@ -338,7 +338,6 @@ module.exports = function(app) {
             });
 
             trx('projectslugs').insert(projectSlugs).then(function() {
-              obj.id = project;
               obj.created_at = new Date(obj.created_at)
               .toISOString().substring(0, 10);
 
