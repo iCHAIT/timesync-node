@@ -45,7 +45,7 @@ module.exports = function(app) {
     return time;
   }
 
-  function compileTimesQueryPromise(req, res) {
+  function compileTimesQueryPromise(req, res, additional) {
     return new Promise(function(resolve, reject) {
       const knex = app.get('knex');
       // Selects a mostly compiled list of times
@@ -72,166 +72,183 @@ module.exports = function(app) {
                          'activities.id')
                    .orderBy('times.revision', 'desc');
 
-      // The user query param is passed
-      if (req.query.user && req.query.user.length) {
-        let userArr = null;
-        // It is a string,
-        if (typeof req.query.user === 'string') {
-          // append it to the timesQ query
-          userArr = [req.query.user];
-        // It is an array
-        } else if (helpers.getType(req.query.user) === 'array' &&
-                   // with string elements
-                   helpers.getType(req.query.user[0]) === 'string') {
-          // Append the array to the timesQ query
-          userArr = req.query.user;
-        }
+      console.log('L75');
+      console.log(res.query);
+      console.log('L77');
 
-        if (userArr) {
-          // Check that the user we just parsed is in the database
-          knex('users').whereIn('username', userArr).then(function(x) {
-            if (x !== []) {
-              // append it to the timesQ query
-              timesQ = timesQ.whereIn('users.username', userArr);
-            } else {
-              // Send an error if the user is not found in the database
-              const err = errors.errorBadQueryValue('user', req.query.user);
-              reject(res.status(err.status).send(err));
-            }
-          }).catch(function(error) {
-            const err = errors.errorServerError(error);
-            reject(res.status(err.status).send(err));
-          });
-        }
-      }
+     // The user query param is passed
+     if (req.query.user && req.query.user.length) {
+       console.log('L79');
+//       let userArr = null;
+//       // It is a string,
+//       if (typeof req.query.user === 'string') {
+//         // append it to the timesQ query
+//         userArr = [req.query.user];
+//       // It is an array
+//       } else if (helpers.getType(req.query.user) === 'array' &&
+//                  // with string elements
+//                  helpers.getType(req.query.user[0]) === 'string') {
+//         // Append the array to the timesQ query
+//         userArr = req.query.user;
+//       }
 
-      // The project param is passed
-      if (req.query.project && req.query.project.length) {
-        let projectArr = null;
-        // It is a srting
-        if (typeof req.query.project === 'string') {
-          projectArr = [req.query.project];
-        // It is an array
-        } else if (helpers.getType(req.query.project) === 'array' &&
-                  // With string elements
-                  helpers.getType(req.query.project[0]) === 'string') {
-          // append the query to the timesQ query
-          projectArr = req.query.project;
-        }
+//       if (userArr) {
+//         // Check that the user we just parsed is in the database
+//         knex('users').whereIn('username', userArr).then(function(x) {
+//           if (x !== []) {
+//             // append it to the timesQ query
+//             timesQ = timesQ.whereIn('users.username', userArr);
+//             console.log('added user stuff to user stuff');
+//           } else {
+//             // Send an error if the user is not found in the database
+//             const err = errors.errorBadQueryValue('user', req.query.user);
+//             reject(res.status(err.status).send(err));
+//           }
+//         }).catch(function(error) {
+//           const err = errors.errorServerError(error);
+//           reject(res.status(err.status).send(err));
+//         });
+//       }
+     }
 
-        if (projectArr) {
-          // Check that the user we just parsed is in the database
-          knex('projectslugs').whereIn('name', projectArr).then(function(x) {
-            if (x === []) {
-              // append it to the timesQ query
-              timesQ = timesQ.whereIn('users.project', projectArr);
-            } else {
-              // Send an error if the user is not found in the database
-              const err = errors.errorBadQueryValue('project', req.query.project);
-              reject(res.status(err.status).send(err));
-            }
-          }).catch(function(error) {
-            const err = errors.errorServerError(error);
-            reject(res.status(err.status).send(err));
-          });
-        }
-      }
+      console.log('L111');
 
-      // The activity query parameter is passed
-      if (req.query.activity && req.query.activity.length) {
-        // It is a string
-        if (typeof req.query.activity === 'string') {
-          // Append it to the timesQ query
-          timesQ = timesQ.whereIn('activities.slug', [req.query.activity]);
-        // It is an array
-        } else if (helpers.getType(req.query.activity) === 'array' &&
-                   // With string elements
-                   helpers.getType(req.query.activity[0]) === 'string') {
-          // Append it to the time timesQ query
-          timesQ = timesQ.whereIn('activities.slug', req.query.activity);
-        }
-      }
+//     // The project param is passed
+//     if (req.query.project && req.query.project.length) {
+//       let projectArr = null;
+//       // It is a srting
+//       if (typeof req.query.project === 'string') {
+//         projectArr = [req.query.project];
+//       // It is an array
+//       } else if (helpers.getType(req.query.project) === 'array' &&
+//                 // With string elements
+//                 helpers.getType(req.query.project[0]) === 'string') {
+//         // append the query to the timesQ query
+//         projectArr = req.query.project;
+//       }
 
-      // The start or end query parameters were passed
-      if (req.query.start || req.params.end) {
-        let range = [];
-        // The start param is a string with non-zero length
-        if (helpers.getType(req.query.start) === 'string' &&
-            req.query.start.length) {
-          // Set it to the start element of range
-          range[0] = req.query.start;
-        // The multiple starts were passed
-        } else if (helpers.getType(req.query.start) === 'array' &&
-                   helpers.getType(req.query.start[0]) === 'string') {
-          // Pick the first one passed and set it range's start element
-          range[0] = req.query.start[0];
-        // Set the start val to undefined and will be set to a sane default
-        } else { range[0] = undefined; }
+//       if (projectArr) {
+//         // Check that the user we just parsed is in the database
+//         knex('projectslugs').whereIn('name', projectArr).then(function(x) {
+//           if (x === []) {
+//             // append it to the timesQ query
+//             timesQ = timesQ.whereIn('users.project', projectArr);
+//           } else {
+//             // Send an error if the user is not found in the database
+//             const err = errors.errorBadQueryValue('project', req.query.project);
+//             reject(res.status(err.status).send(err));
+//           }
+//         }).catch(function(error) {
+//           const err = errors.errorServerError(error);
+//           reject(res.status(err.status).send(err));
+//         });
+//       }
+//     }
 
-        // The start end param is a string with non-zero length
-        if (helpers.getType(req.query.end) === 'string' &&
-            req.query.end.length) {
-          // Set range's end element to the value
-          range[1] = req.query.end;
-        // User passed multiple end values
-        } else if (helpers.getType(req.query.end) === 'array' &&
-                   helpers.getType(req.query.end[0]) === 'string') {
-          // Set range's end value to the first end given
-          range[1] = req.query.end[0];
-        // Set to undefined to later be set to a sane value
-        } else { range[1] = undefined; }
+//     console.log('L146');
 
-        // If the value is undefined, leave it as such
-        if (range[0] === undefined) {
-          // Run a regex test on the times in the query parameter
-        } else if (!/\d{4}-\d{2}-\d{2}/.test(range[0])) {
-          const err = errors.errorBadQueryValue('start', req.query.start);
-          reject(res.status(err.status).send(err));
-        }
-        // If the value is undefined, leave it as such
-        if (range[1] === undefined) {
-          // Run a regex test on the times in the query parameter
-        } else if (!/\d{4}-\d{2}-\d{2}/.test(range[1])) {
-          const err = errors.errorBadQueryValue('end', req.query.end);
-          reject(res.status(err.status).send(err));
-        }
+//     // The activity query parameter is passed
+//     if (req.query.activity && req.query.activity.length) {
+//       // It is a string
+//       if (typeof req.query.activity === 'string') {
+//         // Append it to the timesQ query
+//         timesQ = timesQ.whereIn('activities.slug', [req.query.activity]);
+//       // It is an array
+//       } else if (helpers.getType(req.query.activity) === 'array' &&
+//                  // With string elements
+//                  helpers.getType(req.query.activity[0]) === 'string') {
+//         // Append it to the time timesQ query
+//         timesQ = timesQ.whereIn('activities.slug', req.query.activity);
+//       }
+//     }
 
-        // The dates must be good, so map an actual date type to them
-        range = range.map(function(d) { return new Date(d).getTime(); });
+//     console.log('L163');
 
-        // Both end and start are specified
-        if (!isNaN(range[0]) && !isNaN(range[1])) {
-          // Test that the times submitted were valid within the range of
-          // possible dates.
-          if (!range[0] || range[0] > Date.now()) {
-            const err = errors.errorBadQueryValue('start', req.query.start);
-            reject(res.status(err.status).send(err));
-          }
-          if (!range[1]) {
-            const err = errors.errorBadQueryValue('end', req.query.end);
-            reject(res.status(err.status).send(err));
-          }
+//     // The start or end query parameters were passed
+//     if (req.query.start || req.params.end) {
+//       let range = [];
+//       // The start param is a string with non-zero length
+//       if (helpers.getType(req.query.start) === 'string' &&
+//           req.query.start.length) {
+//         // Set it to the start element of range
+//         range[0] = req.query.start;
+//       // The multiple starts were passed
+//       } else if (helpers.getType(req.query.start) === 'array' &&
+//                  helpers.getType(req.query.start[0]) === 'string') {
+//         // Pick the first one passed and set it range's start element
+//         range[0] = req.query.start[0];
+//       // Set the start val to undefined and will be set to a sane default
+//       } else { range[0] = undefined; }
 
-          // Set the date worked to be within the range
-          timesQ = timesQ.whereBetween('date_worked', range);
-        } else {
-          // One of the the processed times not NaN
-          if (!isNaN(range[0])) {
-            timesQ = timesQ.andWhere('date_worked', '>', range[0]);
-          } else if (!isNaN(range[1])) {
-            timesQ = timesQ.andWhere('date_worked', '<', range[1]);
-          }
-        }
+//       // The start end param is a string with non-zero length
+//       if (helpers.getType(req.query.end) === 'string' &&
+//           req.query.end.length) {
+//         // Set range's end element to the value
+//         range[1] = req.query.end;
+//       // User passed multiple end values
+//       } else if (helpers.getType(req.query.end) === 'array' &&
+//                  helpers.getType(req.query.end[0]) === 'string') {
+//         // Set range's end value to the first end given
+//         range[1] = req.query.end[0];
+//       // Set to undefined to later be set to a sane value
+//       } else { range[1] = undefined; }
 
-        // Query for soft-deleted times when include_deleted=true or if the param
-        // is passed (and not set to anything)
-        if (req.query.include_deleted === 'true' ||
-            req.query.include_deleted === '') {
-        } else {
-          timesQ = timesQ.where({'times.deleted_at': null});
-        }
+//       // If the value is undefined, leave it as such
+//       if (range[0] === undefined) {
+//         // Run a regex test on the times in the query parameter
+//       } else if (!/\d{4}-\d{2}-\d{2}/.test(range[0])) {
+//         const err = errors.errorBadQueryValue('start', req.query.start);
+//         reject(res.status(err.status).send(err));
+//       }
+//       // If the value is undefined, leave it as such
+//       if (range[1] === undefined) {
+//         // Run a regex test on the times in the query parameter
+//       } else if (!/\d{4}-\d{2}-\d{2}/.test(range[1])) {
+//         const err = errors.errorBadQueryValue('end', req.query.end);
+//         reject(res.status(err.status).send(err));
+//       }
 
-      }
+//       // The dates must be good, so map an actual date type to them
+//       range = range.map(function(d) { return new Date(d).getTime(); });
+
+//       // Both end and start are specified
+//       if (!isNaN(range[0]) && !isNaN(range[1])) {
+//         // Test that the times submitted were valid within the range of
+//         // possible dates.
+//         if (!range[0] || range[0] > Date.now()) {
+//           const err = errors.errorBadQueryValue('start', req.query.start);
+//           reject(res.status(err.status).send(err));
+//         }
+//         if (!range[1]) {
+//           const err = errors.errorBadQueryValue('end', req.query.end);
+//           reject(res.status(err.status).send(err));
+//         }
+
+//         // Set the date worked to be within the range
+//         timesQ = timesQ.whereBetween('date_worked', range);
+//       } else {
+//         // One of the the processed times not NaN
+//         if (!isNaN(range[0])) {
+//           timesQ = timesQ.andWhere('date_worked', '>', range[0]);
+//         } else if (!isNaN(range[1])) {
+//           timesQ = timesQ.andWhere('date_worked', '<', range[1]);
+//         }
+//       }
+
+//       // Query for soft-deleted times when include_deleted=true or if the param
+//       // is passed (and not set to anything)
+//       if (req.query.include_deleted === 'true' ||
+//           req.query.include_deleted === '') {
+//       } else {
+//         timesQ = timesQ.where({'times.deleted_at': null});
+//       }
+//     }
+
+//     if (additional !== undefined) {
+//       console.log('adding: ' + JSON.stringify(additional));
+//       timesQ = timesQ.where(additional);
+//     }
+//     console.log('L245');
       resolve(timesQ);
     });
   }
@@ -262,41 +279,41 @@ module.exports = function(app) {
     return info;
   }
 
-  app.get(app.get('version') + '/times', function(req, res) {
-    let timesQ = compileTimesQuery(req, res);
-
-    if (req.params.include_revisions === '' ||
-        req.params.include_revisions === 'true') {
-      timesQ.then(function(times) {
-        //return res.send(times.map(function(time) {
-        return res.send(times.map(function(time) {
-          const childTime = compileTime(time);
-          // Compile parents field
-          return childTime;
-        }));
-      });
-    } else {
-      timesQ.where({'times.newest': true}).then(function(times) {
-        const timesUUIDs = times.map(function(t) {
-          return t.uuid;
-        }).filter(function(t, i, self) {
-          return self.indexOf(t) === i;
-        });
-
-        const newestTimes = timesUUIDs.map(function(tUUID) {
-          const selectedTimes = times.filter(function(t) {
-            return tUUID === t.uuid;
-          });
-          const meta = timesMetadata(selectedTimes);
-          return compileTime(selectedTimes[0], meta.project, meta.activities, res);
-        });
-        return res.send(newestTimes);
-      }).catch(function(error) {
-        const err = errors.errorServerError(error);
-        return res.status(err.status).send(err);
-      });
-    }
-  });
+//  app.get(app.get('version') + '/times', function(req, res) {
+//    let timesQ = compileTimesQueryPromise(req, res);
+//
+//    if (req.params.include_revisions === '' ||
+//        req.params.include_revisions === 'true') {
+//      timesQ.then(function(times) {
+//        //return res.send(times.map(function(time) {
+//        return res.send(times.map(function(time) {
+//          const childTime = compileTime(time);
+//          // Compile parents field
+//          return childTime;
+//        }));
+//      });
+//    } else {
+//      timesQ.where({'times.newest': true}).then(function(times) {
+//        const timesUUIDs = times.map(function(t) {
+//          return t.uuid;
+//        }).filter(function(t, i, self) {
+//          return self.indexOf(t) === i;
+//        });
+//
+//        const newestTimes = timesUUIDs.map(function(tUUID) {
+//          const selectedTimes = times.filter(function(t) {
+//            return tUUID === t.uuid;
+//          });
+//          const meta = timesMetadata(selectedTimes);
+//          return compileTime(selectedTimes[0], meta.project, meta.activities, res);
+//        });
+//        return res.send(newestTimes);
+//      }).catch(function(error) {
+//        const err = errors.errorServerError(error);
+//        return res.status(err.status).send(err);
+//      });
+//    }
+//  });
 
   app.get(app.get('version') + '/times/:uuid', function(req, res) {
     if (!helpers.validateUUID(req.params.uuid)) {
@@ -304,65 +321,59 @@ module.exports = function(app) {
       return res.status(err.status).send(err);
     }
 
-    compileTimesQueryPromise(req, res).where({'times.uuid': req.params.uuid}).then(function(t) {
-      console.log(t);
-    });
-
-    // The query for times is the same at both endpoints, except for a few
-    // minor differences.
-    compileTimesQueryPromise(req, res).then(function(timesQ){
-      timesQ = timesQ.where({'times.uuid': req.params.uuid});
-
-      // I appologize for the following if-block and all of it's tom-foolery.
-      // - Elijah
-      if (req.query.include_revisions === '' ||
-          req.query.include_revisions === 'true') {
-        timesQ.then(function(times) {
-          // Generate a list of all children from the database
-          const childTimes = times.filter(function(time) {
-            return time.newest;
-          });
-          // Generate the project and activity slugs for a given child
-          const childMetadata = timesMetadata(childTimes);
-          // Map the processed child info to the DB object
-          const childTime = compileTime(childTimes[0], childMetadata.project,
-                                        childMetadata.activities, res);
-
-          // Generate a list of parent times
-          const parentTimes = times.filter(function(p) {
-            return p.revision !== childTime.revision && !p.newest;
-          });
-
-          // Get the highest revision number,
-          // this helps us find the number of target parents we will have
-          // i.e., numRevisions - 2
-          const numRevisions = parentTimes[0].revision;
-          // Initialize the childTime.parents to an empty array, in case there
-          // are no revisions
-          childTime.parents = [];
-          // For all revisions
-          for(let i=1; i<=numRevisions; i++) {
-            // Generate a list of parent times of that revision
-            const pCurr = parentTimes.filter(function(p) {
-              return p.revision === i;
-            });
-            // Generate the metadata for that revision
-            const pCurrMeta = timesMetadata(pCurr);
-            // Push the compiled parent time onto the lits of parents.
-            childTime.parents.push(compileTime(pCurr[0], pCurrMeta.project,
-                                   pCurrMeta.activities, res));
-          }
-
-          return res.send(childTime);
+    // I appologize for the following if-block and all of it's tom-foolery.
+    // - Elijah
+    if (req.query.include_revisions === '' ||
+        req.query.include_revisions === 'true') {
+      compileTimesQueryPromise(req, res, {'times.uuid': req.params.uuid})
+      .then(function(times) {
+        // Generate a list of all children from the database
+        const childTimes = times.filter(function(time) {
+          return time.newest;
         });
-      } else {
-        timesQ.where({'times.newest': true}).then(function(times) {
-          const metadata = timesMetadata(times);
-          return res.send(compileTime(times.pop(), metadata.project,
-                                      metadata.activities, res));
+        // Generate the project and activity slugs for a given child
+        const childMetadata = timesMetadata(childTimes);
+        // Map the processed child info to the DB object
+        const childTime = compileTime(childTimes[0], childMetadata.project,
+                                      childMetadata.activities, res);
+
+        // Generate a list of parent times
+        const parentTimes = times.filter(function(p) {
+          return p.revision !== childTime.revision && !p.newest;
         });
-      }
-    });
+
+        // Get the highest revision number,
+        // this helps us find the number of target parents we will have
+        // i.e., numRevisions - 2
+        const numRevisions = parentTimes[0].revision;
+        // Initialize the childTime.parents to an empty array, in case there
+        // are no revisions
+        childTime.parents = [];
+        // For all revisions
+        for(let i=1; i<=numRevisions; i++) {
+          // Generate a list of parent times of that revision
+          const pCurr = parentTimes.filter(function(p) {
+            return p.revision === i;
+          });
+          // Generate the metadata for that revision
+          const pCurrMeta = timesMetadata(pCurr);
+          // Push the compiled parent time onto the lits of parents.
+          childTime.parents.push(compileTime(pCurr[0], pCurrMeta.project,
+                                 pCurrMeta.activities, res));
+        }
+
+        return res.send(childTime);
+      });
+    } else {
+      console.log('L362');
+      console.log(JSON.stringify({'times.newest': true, 'times.uuid': req.params.uuid}));
+      compileTimesQueryPromise(res, req, {'times.newest': true, 'times.uuid': req.params.uuid}).then(function(times) {
+        console.log('L366');
+        const metadata = timesMetadata(times);
+        return res.send(compileTime(times.pop(), metadata.project,
+                                    metadata.activities, res));
+      });
+    }
   });
 
   authPost(app, app.get('version') + '/times', function(req, res, user) {
