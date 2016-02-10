@@ -551,7 +551,6 @@ module.exports = function(expect, request, baseUrl) {
           expectedResults.default_activity = patchedProject.default_activity;
           expectedResults.uuid = originalProject.uuid;
           expectedResults.revision = 2;
-          expectedResults.id = 6;
           expectedResults.updated_at = new Date().toISOString()
                                                  .substring(0, 10);
 
@@ -896,7 +895,6 @@ module.exports = function(expect, request, baseUrl) {
       getAPIToken().then(function(token) {
         requestOptions.body = copyJsonObject(postArg);
         requestOptions.body.object = copyJsonObject(originalProject);
-        delete requestOptions.body.object.id;
         delete requestOptions.body.object.uuid;
         delete requestOptions.body.object.revision;
         delete requestOptions.body.object.deleted_at;
@@ -923,7 +921,6 @@ module.exports = function(expect, request, baseUrl) {
       getAPIToken().then(function(token) {
         requestOptions.body = copyJsonObject(postArg);
         requestOptions.body.object = copyJsonObject(originalProject);
-        delete requestOptions.body.object.id;
         delete requestOptions.body.object.uuid;
         delete requestOptions.body.object.revision;
         delete requestOptions.body.object.deleted_at;
@@ -1184,9 +1181,8 @@ module.exports = function(expect, request, baseUrl) {
             // the projects/ endpoint should now have one more project
             const expectedGetResults = initialProjects.concat([
               {
-                owner: 'tschuy',
                 uri: 'https://github.com/osuosl/timesync-node',
-                slugs: ['tsn', 'timesync-node'],
+                slugs: ['timesync-node', 'tsn'],
                 name: 'TimeSync Node',
                 default_activity: null,
                 deleted_at: null,
@@ -1194,7 +1190,6 @@ module.exports = function(expect, request, baseUrl) {
                 created_at: new Date().toISOString().substring(0, 10),
                 revision: 1,
                 uuid: addedProject.uuid,
-                id: 6,
               },
             ]);
 
@@ -1355,7 +1350,7 @@ module.exports = function(expect, request, baseUrl) {
           const expectedError = {
             status: 400,
             error: 'Bad object',
-            text: 'The project is missing a slug',
+            text: 'The project is missing a slugs',
           };
 
           expect(body).to.deep.equal(expectedError);
@@ -1475,7 +1470,7 @@ module.exports = function(expect, request, baseUrl) {
         request.post(requestOptions, function(err, res, body) {
           const expectedError = {
             status: 400,
-            error: 'Bad Object',
+            error: 'Bad object',
             text: 'Field default_activity of project should be string but ' +
                   'was sent as array',
           };
@@ -1573,6 +1568,7 @@ module.exports = function(expect, request, baseUrl) {
                 'webmgr',
                 name: 'Ganeti Web Manager',
                 slugs: ['ganeti-webmgr', 'gwm'],
+                default_activity: null,
                 deleted_at: null,
                 updated_at: null,
                 created_at: '2014-01-01',
@@ -1583,6 +1579,7 @@ module.exports = function(expect, request, baseUrl) {
                 uri: 'https://code.osuosl.org/projects/pgd',
                 name: 'Protein Geometry Database',
                 slugs: ['pgd'],
+                default_activity: null,
                 deleted_at: null,
                 updated_at: null,
                 created_at: '2014-01-01',
@@ -1593,6 +1590,7 @@ module.exports = function(expect, request, baseUrl) {
                 uri: 'https://github.com/osu-cass/whats-fresh-api',
                 name: 'Whats Fresh',
                 slugs: ['wf'],
+                default_activity: null,
                 deleted_at: null,
                 updated_at: null,
                 created_at: '2014-01-01',
@@ -1603,6 +1601,7 @@ module.exports = function(expect, request, baseUrl) {
                 uri: 'https://github.com/osuosl/timesync',
                 name: 'Timesync',
                 slugs: ['timesync', 'ts'],
+                default_activity: 'dev',
                 deleted_at: null,
                 updated_at: null,
                 created_at: '2014-01-01',
@@ -1643,6 +1642,7 @@ module.exports = function(expect, request, baseUrl) {
                 'webmgr',
                 name: 'Ganeti Web Manager',
                 slugs: ['ganeti-webmgr', 'gwm'],
+                default_activity: null,
                 deleted_at: null,
                 updated_at: null,
                 created_at: '2014-01-01',
@@ -1653,6 +1653,7 @@ module.exports = function(expect, request, baseUrl) {
                 uri: 'https://code.osuosl.org/projects/pgd',
                 name: 'Protein Geometry Database',
                 slugs: ['pgd'],
+                default_activity: null,
                 deleted_at: null,
                 updated_at: null,
                 created_at: '2014-01-01',
@@ -1663,6 +1664,7 @@ module.exports = function(expect, request, baseUrl) {
                 uri: 'https://github.com/osu-cass/whats-fresh-api',
                 name: 'Whats Fresh',
                 slugs: ['wf'],
+                default_activity: null,
                 deleted_at: null,
                 updated_at: null,
                 created_at: '2014-01-01',
@@ -1673,6 +1675,7 @@ module.exports = function(expect, request, baseUrl) {
                 uri: 'https://github.com/osuosl/timesync',
                 name: 'Timesync',
                 slugs: ['timesync', 'ts'],
+                default_activity: 'dev',
                 revision: 1,
                 deleted_at: null,
                 updated_at: null,
@@ -1702,6 +1705,7 @@ module.exports = function(expect, request, baseUrl) {
       'updated_at': currentTime,
       'created_at': '2014-01-01',
       'slugs': ['ganeti-webmgr', 'gwm'],
+      'default_activity': null,
     };
 
     const withParentsData = {
@@ -1713,10 +1717,12 @@ module.exports = function(expect, request, baseUrl) {
       'updated_at': currentTime,
       'created_at': '2014-01-01',
       'slugs': ['ganeti-webmgr', 'gwm'],
+      'default_activity': null,
       'parents': [
         {
           'uri': 'https://code.osuosl.org/projects/ganeti-webmgr',
           'name': 'Ganeti Web Manager',
+          'default_activity': null,
           'uuid': 'c285963e-192b-4e99-9d92-a940519f1fbd',
           'revision': 1,
           'deleted_at': null,
