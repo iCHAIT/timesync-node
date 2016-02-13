@@ -583,7 +583,7 @@ module.exports = function(app) {
                           trx.commit();
                           res.send(JSON.stringify(project));
                         }).catch(function(error) {
-                          log.error(req, 'Error inserting slugs: ' + error);
+                          log.error(req, 'Error inserting new slugs: ' + error);
                           trx.rollback();
                         });
                       } else {
@@ -594,7 +594,7 @@ module.exports = function(app) {
                           trx.commit();
                           res.send(project);
                         }).catch(function(error) {
-                          log.error(req, 'Error updating slugs: ' + error);
+                          log.error(req, 'Error copying old slugs: ' + error);
                           trx.rollback();
                         });
                       }
@@ -603,15 +603,16 @@ module.exports = function(app) {
                                                                         error);
                       trx.rollback();
                     });
-                  }).catch(function() {
+                  }).catch(function(error) {
+                    log.error(req, 'Error updating user roles: ' + error);
                     trx.rollback();
                   });
                 }).catch(function(error) {
-                  log.error(req, 'Error updating user roles: ' + error);
+                  log.error(req, 'Error inserting updated project: ' + error);
                   trx.rollback();
                 });
               }).catch(function(error) {
-                log.error(req, 'Error inserting updated roles: ' + error);
+                log.error(req, 'Error deprecating old project: ' + error);
                 trx.rollback();
               });
             }).catch(function(error) {
