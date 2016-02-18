@@ -28,3 +28,6 @@ projects.
 
 6) MaraJade's password is ``wording``
   - Currently assigned no permissions to any projects
+
+7) timero's password = ``test``
+  - Deleted and inactive; used for tests
