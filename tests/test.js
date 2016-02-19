@@ -15,6 +15,37 @@ const baseUrl = 'http://localhost:' + port + '/v1/';
 const app = require('../src/app');
 let trx;
 
+const user = 'tschuy';
+const password = 'password';
+
+const getAPIToken = function() {
+  const requestOptions = {
+    url: baseUrl + 'login',
+    json: true,
+  };
+  requestOptions.body = {
+    auth: {
+      type: 'password',
+      username: user,
+      password: password,
+    },
+  };
+  return new Promise(function(resolve) {
+    request.post(requestOptions, function(err, res, body) {
+      expect(err).to.be.a('null');
+      expect(res.statusCode).to.equal(200);
+
+      resolve(body.token);
+    });
+  });
+};
+
+const copyJsonObject = function(obj) {
+  // This allows us to change object properties
+  // without effecting other tests
+  return JSON.parse(JSON.stringify(obj));
+};
+
 const transact = function(done) {
   knex.transaction(function(newTrx) {
     trx = newTrx;
@@ -70,9 +101,9 @@ describe('Endpoints', function() {
     });
   });
 
-  require('./times')(expect, request, baseUrl);
-  require('./activities')(expect, request, baseUrl);
-  require('./projects')(expect, request, baseUrl);
+  require('./times')(expect, request, baseUrl, getAPIToken, copyJsonObject, user, password);
+  require('./projects')(expect, request, baseUrl, getAPIToken, copyJsonObject, user, password);
+  require('./activities')(expect, request, baseUrl, getAPIToken, copyJsonObject);
 });
 
 describe('Errors', function() {

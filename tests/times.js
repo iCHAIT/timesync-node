@@ -1,37 +1,6 @@
 'use strict';
 
-function copyJsonObject(obj) {
-  // This allows us to change object properties
-  // without affecting other tests
-  return JSON.parse(JSON.stringify(obj));
-}
-
-let user = 'tschuy';
-let password = 'password';
-
-module.exports = function(expect, request, baseUrl) {
-  function getAPIToken() {
-    const requestOptions = {
-      url: baseUrl + 'login',
-      json: true,
-    };
-    requestOptions.body = {
-      auth: {
-        type: 'password',
-        username: user,
-        password: password,
-      },
-    };
-    return new Promise(function(resolve) {
-      request.post(requestOptions, function(err, res, body) {
-        expect(err).to.be.a('null');
-        expect(res.statusCode).to.equal(200);
-
-        resolve(body.token);
-      });
-    });
-  }
-
+module.exports = function(expect, request, baseUrl, getAPIToken, copyJsonObject, user, password) {
   /* GET one of the /times endpoints and check its response against
   what should be returned */
   describe('GET /times', function() {
